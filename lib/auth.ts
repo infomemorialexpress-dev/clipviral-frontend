@@ -5,6 +5,21 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
+// Ensure NEXTAUTH_URL is accurately set in production environments (e.g. Vercel)
+if (typeof window === 'undefined') {
+  if (
+    !process.env.NEXTAUTH_URL ||
+    process.env.NEXTAUTH_URL.includes('localhost') ||
+    process.env.NEXTAUTH_URL === 'https://clipviral.ai'
+  ) {
+    if (process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production') {
+      process.env.NEXTAUTH_URL = 'https://clipviral-frontend.vercel.app';
+    } else if (process.env.VERCEL_URL) {
+      process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+    }
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
